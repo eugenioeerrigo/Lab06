@@ -41,10 +41,14 @@ public class Model {
 	}
 
 	public String trovaSequenza(int mese) {
+		String ris = "";
 		
 		List<SimpleCity> parziale = new ArrayList<>();
 		List<SimpleCity> risultato = this.ricorsiva(0, mese, parziale);
-		return "TODO!";
+		
+		for(SimpleCity sc : risultato)
+			ris +=sc.getNome()+"\n";
+		return ris;
 	}
 
 	private Double punteggioSoluzione(List<SimpleCity> soluzioneCandidata) {
@@ -56,7 +60,7 @@ public class Model {
 	}
 
 	private boolean controllaParziale(List<SimpleCity> parziale) {
-
+		
 		return true;
 	}
 
