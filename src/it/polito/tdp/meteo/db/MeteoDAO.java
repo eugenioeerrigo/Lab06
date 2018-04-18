@@ -40,13 +40,28 @@ public class MeteoDAO {
 	}
 
 	public List<Rilevamento> getAllRilevamentiLocalitaMese(int mese, String localita) {
-
-		return null;
+		
+		List<Rilevamento> rilev = new ArrayList<>();
+		for(Rilevamento r : this.getAllRilevamenti()) {
+			if(r.getLocalita().compareTo(localita)==0 && (r.getData().getMonth()+1)==mese) {
+				rilev.add(r);
+			}
+		}
+		
+		return rilev;
 	}
 
 	public Double getAvgRilevamentiLocalitaMese(int mese, String localita) {
 
-		return 0.0;
+		int um = 0;
+		int i = 0;
+		for(Rilevamento r: this.getAllRilevamentiLocalitaMese(mese, localita)) {
+			um += r.getUmidita();
+			i++;
+		}
+		if(i==0)
+			return 0.0;
+		return (double)(um/i);
 	}
 
 }
