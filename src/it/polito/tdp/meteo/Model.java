@@ -17,11 +17,9 @@ public class Model {
 
 	private MeteoDAO dao ;
 	private List<Citta> cities;
-	private List<SimpleCity> soluzione;
 	
 	public Model() {
 		dao = new MeteoDAO();
-		soluzione = new ArrayList<>();
 		cities = new ArrayList<>();
 			
 			for(Rilevamento r : dao.getAllRilevamenti()) {
@@ -60,21 +58,49 @@ public class Model {
 	}
 
 	private boolean controllaParziale(List<SimpleCity> parziale) {
+		int c1 = 0 ;
+		int c2 = 0;
+		int c3 = 0;
+		int def = 0;
+		for(SimpleCity s : parziale) {
+			if(s.getNome().compareTo(cities.get(0).getNome())==0)
+				c1++;
+			if(s.getNome().compareTo(cities.get(1).getNome())==0)
+				c2++;
+			if(s.getNome().compareTo(cities.get(2).getNome())==0)
+				c3++;
+			else
+				def++;
+		}
+		if(c1==0 || c2==0 || c3==0)
+			return false;
+		if(c1>NUMERO_GIORNI_CITTA_MAX || c2>NUMERO_GIORNI_CITTA_MAX || c3>NUMERO_GIORNI_CITTA_MAX)
+			return false;
 		
+		for(int i=0; i<parziale.size(); i=+NUMERO_GIORNI_CITTA_CONSECUTIVI_MIN) {
+			for(int j=0; j<2; j++) {
+			if(!parziale.get(i+j).equals(parziale.get(i+j+1)))
+				return false;
+			if(parziale.get(i+j+1).equals(parziale.get(i+j+2)))
+				i++;
+			}
+		}
 		return true;
 	}
 
 	private List<SimpleCity> ricorsiva(int livello, int mese, List<SimpleCity> parziale) {
 		
-		if(livello == NUMERO_GIORNI_TOTALI) {
-			return parziale;
+		if(livello >= NUMERO_GIORNI_TOTALI) {
+			if(controllaParziale(parziale))
+				return parziale;
 		}
 		
 		for(int i=0; i<cities.size(); i++) {
 			SimpleCity sc = new SimpleCity(cities.get(i).getNome());
+			//if(!sc.equals(parziale.get(livello-1)))
+				//costo += this.COST;
 			parziale.add(sc);
-			if(controllaParziale(parziale))
-				ricorsiva(livello+1, mese, parziale);
+			ricorsiva(livello+1, mese, parziale);
 			parziale.remove(sc);
 		}
 		return null;
