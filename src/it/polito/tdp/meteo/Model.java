@@ -17,6 +17,8 @@ public class Model {
 
 	private MeteoDAO dao ;
 	private List<Citta> cities;
+	private List<SimpleCity> risultato;
+	private double best;
 	
 	public Model() {
 		dao = new MeteoDAO();
@@ -42,7 +44,9 @@ public class Model {
 		String ris = "";
 		
 		List<SimpleCity> parziale = new ArrayList<>();
-		List<SimpleCity> risultato = this.ricorsiva(0, mese, parziale);
+		best = 0.0;
+		
+	    this.ricorsiva(1, mese, parziale);
 		
 		for(SimpleCity sc : risultato)
 			ris +=sc.getNome()+"\n";
@@ -54,6 +58,11 @@ public class Model {
 		double score = 0.0;
 		for(SimpleCity sc : soluzioneCandidata)
 			score += sc.getCosto();
+		
+		for(int i=1; i<soluzioneCandidata.size(); i++) {
+			if(!soluzioneCandidata.get(i).equals(soluzioneCandidata.get(i-1)))
+				score += this.COST;
+		}
 		return score;
 	}
 
@@ -77,32 +86,53 @@ public class Model {
 		if(c1>NUMERO_GIORNI_CITTA_MAX || c2>NUMERO_GIORNI_CITTA_MAX || c3>NUMERO_GIORNI_CITTA_MAX)
 			return false;
 		
-		for(int i=0; i<parziale.size(); i=+NUMERO_GIORNI_CITTA_CONSECUTIVI_MIN) {
-			for(int j=0; j<2; j++) {
-			if(!parziale.get(i+j).equals(parziale.get(i+j+1)))
-				return false;
-			if(parziale.get(i+j+1).equals(parziale.get(i+j+2)))
-				i++;
-			}
+//		for(int i=0; i<parziale.size(); i=+NUMERO_GIORNI_CITTA_CONSECUTIVI_MIN) {
+//			for(int j=0; j<2; j++) {
+//			if(!parziale.get(i+j).equals(parziale.get(i+j+1)))
+//				return false;
+//			if(parziale.get(i+j+1).equals(parziale.get(i+j+2)))
+//				i++;
+//			}
+//		}
+		
+		for(int i=1; i<parziale.size(); i++) {
+			if(!parziale.get(i).equals(parziale.get(i-1)))
+				return false;;
 		}
 		return true;
 	}
 
-	private List<SimpleCity> ricorsiva(int livello, int mese, List<SimpleCity> parziale) {
+	private void ricorsiva(int livello, int mese, List<SimpleCity> parziale) {
 		
-		if(livello >= NUMERO_GIORNI_TOTALI) {
-			if(controllaParziale(parziale))
-				return parziale;
+		//Debug
+		for(SimpleCity e : parziale)
+			System.out.print(e.getNome()+" ");
+		System.out.println("---");
+		
+		//Condizione di terminazione
+		if(parziale.size() > this.NUMERO_GIORNI_TOTALI)
+			return;
+		//Controllo se la soluzione parziale è la migliore
+		if(parziale.size() == NUMERO_GIORNI_TOTALI) {
+			if(controllaParziale(parziale)) {
+				if(this.punteggioSoluzione(parziale)<best)
+					risultato = new ArrayList<>(parziale);
+					best = punteggioSoluzione(parziale);
+			}
 		}
 		
 		for(int i=0; i<cities.size(); i++) {
-			SimpleCity sc = new SimpleCity(cities.get(i).getNome());
-			//if(!sc.equals(parziale.get(livello-1)))
-				//costo += this.COST;
+			int um = 0;
+			List<Rilevamento> rilMese = dao.getAllRilevamentiLocalitaMese(mese, cities.get(i).getNome());
+			for(Rilevamento r : rilMese) {
+				if(r.getData().getDate() == livello)
+					um = r.getUmidita();
+			}
+			
+			SimpleCity sc = new SimpleCity(cities.get(i).getNome(), um);
 			parziale.add(sc);
 			ricorsiva(livello+1, mese, parziale);
 			parziale.remove(sc);
 		}
-		return null;
 	}
 }
