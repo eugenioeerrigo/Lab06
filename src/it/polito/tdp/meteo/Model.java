@@ -24,7 +24,7 @@ public class Model {
 		dao = new MeteoDAO();
 		cities = new ArrayList<>();
 			
-			for(Rilevamento r : dao.getAllRilevamenti()) {
+			for(Rilevamento r : dao.getAllRilevamenti()) {               //posso farlo con metodo da dao con query SQL
 				Citta cit = new Citta(r.getLocalita());
 				if(!cities.contains(cit))
 					cities.add(cit);
@@ -46,7 +46,7 @@ public class Model {
 			c.setRilevamenti(dao.getAllRilevamentiLocalitaMese(mese, c.getNome()));
 		}
 	}
-	
+
 	public String trovaSequenza(int mese) {
 		String ris = "";
 		
@@ -59,7 +59,7 @@ public class Model {
 	    this.ricorsiva(1, parziale);
 	    
 		if(risultato!=null) {
-//			System.out.println(String.format("DEBUG score: %f", this.punteggioSoluzione(risultato)));
+			System.out.println(String.format("DEBUG score: %f", this.punteggioSoluzione(risultato)));
 			
 			for(SimpleCity sc : risultato)
 				ris +=sc.getNome()+"\n";
@@ -180,6 +180,7 @@ public class Model {
 					risultato = new ArrayList<>(parziale);
 					best = punteggioSoluzione(parziale);
 				}
+			System.out.println(parziale.toString());
 		}
 		
 		for(Citta citta : cities) {

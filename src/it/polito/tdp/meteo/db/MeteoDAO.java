@@ -11,6 +11,8 @@ import it.polito.tdp.meteo.bean.Rilevamento;
 
 public class MeteoDAO {
 
+	//public List<Citta> getAllCitta(){  query SQL   }                elenco delle (3) città
+	
 	public List<Rilevamento> getAllRilevamenti() {
 
 		final String sql = "SELECT Localita, Data, Umidita FROM situazione ORDER BY data ASC";
